@@ -14,7 +14,7 @@ $options = [
 
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
-    echo "<h1>🎉 KONEKSI SUKSES! 🎉</h1>";
+    echo "<h1>🎉 KONEKSI SUKSES!!! 🎉</h1>";
     echo "<p>PHP di dalam Kubernetes berhasil bicara dengan MySQL di Ubuntu Server.</p>";
     echo "<p>Host MySQL: $host</p>";
 } catch (\PDOException $e) {
