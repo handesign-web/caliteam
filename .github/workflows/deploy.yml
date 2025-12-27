@@ -6,7 +6,7 @@ on:
 
 env:
   # Ganti dengan nama image yang Anda mau (huruf kecil)
-  IMAGE_NAME: my-ubuntu-server
+  IMAGE_NAME: caliteam
   # Ganti dengan username github Anda
   USERNAME: handesign-web
 
