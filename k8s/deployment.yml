@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-web-app
+spec:
+  replicas: 2  # Kita akan jalankan 2 copy aplikasi sekaligus (Load Balancing)
+  selector:
+    matchLabels:
+      app: php-web
+  template:
+    metadata:
+      labels:
+        app: php-web
+    spec:
+      containers:
+      - name: php-container
+        # Image ini akan kita buat otomatis via GitHub Actions nanti
+        # GANTI 'handesign-web' DENGAN USERNAME GITHUB ANDA
+        image: ghcr.io/handesign-web/caliteam:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: php-service
+spec:
+  type: NodePort # Membuka akses keluar
+  selector:
+    app: php-web
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30000 # Kita paksa buka di port 30000 agar mudah diakses

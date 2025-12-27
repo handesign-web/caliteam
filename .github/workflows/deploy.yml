@@ -1,37 +1,44 @@
-name: Deploy to Production (VMware)
+name: Build and Deploy to K8s
 
-# Kapan aksi ini dijalankan?
-# Setiap kali ada 'push' ke branch 'main'
 on:
   push:
     branches: [ "main" ]
 
-# Daftar pekerjaan yang akan dilakukan
+env:
+  # Ganti dengan nama image yang Anda mau (huruf kecil)
+  IMAGE_NAME: my-ubuntu-server
+  # Ganti dengan username github Anda
+  USERNAME: handesign-web
+
 jobs:
-  build-and-deploy:
-    # PENTING: Ini memerintahkan GitHub untuk mencari server 
-    # yang terdaftar dengan label 'self-hosted' (yaitu VM Ubuntu Anda)
-    runs-on: self-hosted
+  build-and-push:
+    runs-on: self-hosted # Jalan di Server Ubuntu M4 Anda
+    permissions:
+      contents: read
+      packages: write # Izin untuk upload ke GitHub Container Registry
 
     steps:
-    # Langkah 1: Ambil kodingan terbaru dari GitHub
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    # Langkah 2: (Opsional) Debugging - Cek siapa user yang menjalankan
-    - name: Check User & Location
-      run: |
-        echo "Script ini dijalankan oleh user: $(whoami)"
-        echo "Lokasi folder saat ini: $(pwd)"
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-    # Langkah 3: Proses Deploy (Menyalin file)
-    - name: Deploy to Web Server
-      run: |
-        # Hapus file html default apache (jika masih ada dan belum dihapus)
-        rm /var/www/html/index.html || true 
-        
-        # Salin semua file dari repository (titik .) ke folder web server
-        # rsync adalah tool copy yang cerdas (hanya mengcopy yang berubah)
-        rsync -av --exclude '.git' --exclude '.github' ./ /var/www/html/
-        
-        echo "Deploy Berhasil! Silakan cek website."
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Deploy to MicroK8s
+        run: |
+          # Apply konfigurasi Kubernetes
+          kubectl apply -f k8s/deployment.yml
+          
+          # Force restart agar mengambil image terbaru
+          kubectl rollout restart deployment/php-web-app
