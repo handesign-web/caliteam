@@ -1,0 +1,37 @@
+name: Deploy to Production (VMware)
+
+# Kapan aksi ini dijalankan?
+# Setiap kali ada 'push' ke branch 'main'
+on:
+  push:
+    branches: [ "main" ]
+
+# Daftar pekerjaan yang akan dilakukan
+jobs:
+  build-and-deploy:
+    # PENTING: Ini memerintahkan GitHub untuk mencari server 
+    # yang terdaftar dengan label 'self-hosted' (yaitu VM Ubuntu Anda)
+    runs-on: self-hosted
+
+    steps:
+    # Langkah 1: Ambil kodingan terbaru dari GitHub
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Langkah 2: (Opsional) Debugging - Cek siapa user yang menjalankan
+    - name: Check User & Location
+      run: |
+        echo "Script ini dijalankan oleh user: $(whoami)"
+        echo "Lokasi folder saat ini: $(pwd)"
+
+    # Langkah 3: Proses Deploy (Menyalin file)
+    - name: Deploy to Web Server
+      run: |
+        # Hapus file html default apache (jika masih ada dan belum dihapus)
+        # rm /var/www/html/index.html || true 
+        
+        # Salin semua file dari repository (titik .) ke folder web server
+        # rsync adalah tool copy yang cerdas (hanya mengcopy yang berubah)
+        rsync -av --exclude '.git' --exclude '.github' ./ /var/www/html/
+        
+        echo "Deploy Berhasil! Silakan cek website."

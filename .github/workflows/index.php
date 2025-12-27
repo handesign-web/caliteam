@@ -1,0 +1,1 @@
+<?php echo "Halo! Ini adalah update otomatis dari GitHub Actions ke VMware M4!"; ?>
