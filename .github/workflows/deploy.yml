@@ -37,8 +37,8 @@ jobs:
 
       - name: Deploy to MicroK8s
         run: |
-          # Apply konfigurasi Kubernetes
-          kubectl apply -f k8s/deployment.yml
+          # Ganti kubectl jadi microk8s.kubectl
+          microk8s.kubectl apply -f k8s/deployment.yml
           
-          # Force restart agar mengambil image terbaru
-          kubectl rollout restart deployment/php-web-app
+          # Ganti kubectl jadi microk8s.kubectl
+          microk8s.kubectl rollout restart deployment/php-web-app
