@@ -28,7 +28,7 @@ jobs:
     - name: Deploy to Web Server
       run: |
         # Hapus file html default apache (jika masih ada dan belum dihapus)
-        # rm /var/www/html/index.html || true 
+        rm /var/www/html/index.html || true 
         
         # Salin semua file dari repository (titik .) ke folder web server
         # rsync adalah tool copy yang cerdas (hanya mengcopy yang berubah)
